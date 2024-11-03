@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:animations/animations.dart'; // Import animations package
 import 'package:newsapp/model/new_model.dart';
 import 'package:newsapp/screen/home_screen.dart';
 import 'package:newsapp/screen/news_details.dart';
@@ -16,6 +17,7 @@ class SelectedCategoryNews extends StatefulWidget {
 class _SelectedCategoryNewsState extends State<SelectedCategoryNews> {
   List<NewsModel> articles = [];
   bool isLoading = true;
+
   getNews() async {
     CategoryNews news = CategoryNews();
     await news.getNews(widget.category);
@@ -40,11 +42,21 @@ class _SelectedCategoryNewsState extends State<SelectedCategoryNews> {
         foregroundColor: Colors.white,
         leading: BackButton(
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NewsHomeScreen(),
-                ));
+            Navigator.of(context).push(
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) {
+                  return const NewsHomeScreen();
+                },
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  return SharedAxisTransition(
+                    animation: animation,
+                    secondaryAnimation: secondaryAnimation,
+                    transitionType: SharedAxisTransitionType.horizontal,
+                    child: child,
+                  );
+                },
+              ),
+            );
           },
         ),
         title: Text(
@@ -67,12 +79,21 @@ class _SelectedCategoryNewsState extends State<SelectedCategoryNews> {
                   final article = articles[index];
                   return GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                NewsDetails(newsModel: article),
-                          ));
+                      Navigator.of(context).push(
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation, secondaryAnimation) {
+                            return NewsDetails(newsModel: article);
+                          },
+                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                            return SharedAxisTransition(
+                              animation: animation,
+                              secondaryAnimation: secondaryAnimation,
+                              transitionType: SharedAxisTransitionType.horizontal,
+                              child: child,
+                            );
+                          },
+                        ),
+                      );
                     },
                     child: Container(
                       margin: const EdgeInsets.all(15),
@@ -87,15 +108,13 @@ class _SelectedCategoryNewsState extends State<SelectedCategoryNews> {
                               fit: BoxFit.cover,
                             ),
                           ),
-                          const SizedBox(
-                            height: 10,
-                          ),
+                          const SizedBox(height: 10),
                           Text(
                             article.title!,
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 18),
                           ),
-                          const Divider()
+                          const Divider(),
                         ],
                       ),
                     ),
